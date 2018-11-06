@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,13 +9,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace D2L.CodeStyle.Analyzers.ApiUsage.Events {
 
 	[DiagnosticAnalyzer( LanguageNames.CSharp )]
-	internal sealed class EventTypesAnalyzer : DiagnosticAnalyzer {
+	internal sealed class EventHandlerTypesAnalyzer : DiagnosticAnalyzer {
 
-		private const string EventAttributeFullName = "D2L.LP.Distributed.Events.Domain.EventAttribute";
+		private const string EventHandlerAttributeFullName = "D2L.LP.Distributed.Events.Handlers.EventHandlerAttribute";
 		private const string ImmutableAttributeFullName = "D2L.CodeStyle.Annotations.Objects+Immutable";
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(
-			Diagnostics.EventTypeMissingImmutableAttribute
+			Diagnostics.EventHandlerMissingImmutableAttribute,
+			Diagnostics.InvalidEventHandlerId
 		);
 
 		public override void Initialize( AnalysisContext context ) {
@@ -27,8 +29,8 @@ namespace D2L.CodeStyle.Analyzers.ApiUsage.Events {
 
 			Compilation compilation = context.Compilation;
 
-			INamedTypeSymbol eventAttributeType = compilation.GetTypeByMetadataName( EventAttributeFullName );
-			if( eventAttributeType == null ) {
+			INamedTypeSymbol eventHandlerAttributeType = compilation.GetTypeByMetadataName( EventHandlerAttributeFullName );
+			if( eventHandlerAttributeType == null ) {
 				return;
 			}
 
@@ -38,7 +40,7 @@ namespace D2L.CodeStyle.Analyzers.ApiUsage.Events {
 					ctxt => AnalyzeMethodInvocation(
 						ctxt,
 						(ClassDeclarationSyntax)ctxt.Node,
-						eventAttributeType,
+						eventHandlerAttributeType,
 						immutableAttributeType
 					),
 					SyntaxKind.ClassDeclaration
@@ -48,13 +50,13 @@ namespace D2L.CodeStyle.Analyzers.ApiUsage.Events {
 		private void AnalyzeMethodInvocation(
 				SyntaxNodeAnalysisContext context,
 				ClassDeclarationSyntax declaration,
-				INamedTypeSymbol eventAttributeType,
+				INamedTypeSymbol eventHandlerAttributeType,
 				INamedTypeSymbol immutableAttributeType
 			) {
 
 			INamedTypeSymbol declarationType = context.SemanticModel.GetDeclaredSymbol( declaration );
 
-			bool hasEventAttribute = HasAttribute( declarationType, eventAttributeType );
+			bool hasEventAttribute = HasAttribute( declarationType, eventHandlerAttributeType );
 			if( !hasEventAttribute ) {
 				return;
 			}
@@ -65,7 +67,7 @@ namespace D2L.CodeStyle.Analyzers.ApiUsage.Events {
 			}
 
 			Diagnostic diagnostic = Diagnostic.Create(
-					Diagnostics.EventTypeMissingImmutableAttribute,
+					Diagnostics.EventHandlerMissingImmutableAttribute,
 					declaration.Identifier.GetLocation(),
 					declarationType.ToDisplayString()
 				);

@@ -394,5 +394,25 @@ namespace D2L.CodeStyle.Analyzers {
 			isEnabledByDefault: true,
 			description: "We require that [Immutable] be explicity applied to all event types."
 		);
+
+		public static readonly DiagnosticDescriptor EventHandlerMissingImmutableAttribute = new DiagnosticDescriptor(
+			id: "D2L0046",
+			title: "Event Handler Missing [Immutable] Attribute",
+			messageFormat: "{0} must be marked [Immutable] because all event handlers must be immutable.",
+			category: "Correctness",
+			defaultSeverity: DiagnosticSeverity.Error,
+			isEnabledByDefault: true,
+			description: "We require that [Immutable] be explicity applied to all event handlers because they are singletons."
+		);
+
+		public static readonly DiagnosticDescriptor InvalidEventHandlerId = new DiagnosticDescriptor(
+			id: "D2L0047",
+			title: "Invalid Event Handler Id",
+			messageFormat: "{0} must have a valid event handler id.",
+			category: "Correctness",
+			defaultSeverity: DiagnosticSeverity.Error,
+			isEnabledByDefault: true,
+			description: "We require that event handler ids be unique guids in the digits format (00000000-0000-0000-0000-000000000000)."
+		);
 	}
 }
