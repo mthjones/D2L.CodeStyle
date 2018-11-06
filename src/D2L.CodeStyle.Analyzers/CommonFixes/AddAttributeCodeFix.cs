@@ -31,7 +31,8 @@ namespace D2L.CodeStyle.Analyzers.CommonFixes {
 
 		public override ImmutableArray<string> FixableDiagnosticIds
 			=> ImmutableArray.Create(
-				Diagnostics.MissingTransitiveImmutableAttribute.Id
+				Diagnostics.MissingTransitiveImmutableAttribute.Id,
+				Diagnostics.EventHandlerMissingImmutableAttribute.Id
 			);
 
 		public override FixAllProvider GetFixAllProvider() {
